@@ -1,6 +1,11 @@
 'use strict'
 
-import React, {Component} from 'react'
+import React, {Component} from 'react';
+import Search from './components/search';
+import UserInfo from './components/user-info';
+import Actions from './components/actions';
+import Repos from './components/repos';
+
 
 class App extends Component 
 { 
@@ -8,33 +13,28 @@ class App extends Component
   render(){ 
     return(
       <div className='app'>
-        <div className='user-info'>
-          <img src='#' />
-          <h1>
-            <a href='#'>Teste</a>
-          </h1>
-          <ul className='repos-info'>
-            <li>Repositorios</li>
-            <li>Seguidores</li>
-            <li>Seguindoo</li>
-          </ul>
 
-          <div className='actions'>
-            <button>Ver Repositorios</button>
-            <button>Ver favoritos</button>
-          </div>
+        <Search/>
+        
+        <UserInfo/>
+        
+        <Actions/>
 
-          <div className='repos'>
-            <h2>Repositorios:</h2>
-            <ul>
-              <li><a href='#'>Nome</a></li>
-            </ul>
+        <Repos className = 'repos' title = 'Repositórios: ' 
+          repos={[{
+            name: 'Nome do repositório',
+            link: '#'
           
-            <ul className='starred'>
-              <li><a href='#'>Nome Favorito</a></li>
-            </ul>
-          </div>
-        </div>
+          }]}
+        />
+        <Repos className = 'starred' title = 'Favoritos: ' 
+          repos={[{
+            name: 'Nome do repositório',
+            link: '#'
+          
+          }]}
+        />
+
       </div>
     )
   }
