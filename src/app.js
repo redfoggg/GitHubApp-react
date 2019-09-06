@@ -1,42 +1,82 @@
 'use strict'
 
 import React, {Component} from 'react';
-import Search from './components/search';
-import UserInfo from './components/user-info';
-import Actions from './components/actions';
-import Repos from './components/repos';
+import AppContent from './components/app-content';
+import ajax from '@fdaciuk/ajax';
 
 
 class App extends Component 
 { 
 
+  constructor(){
+    super();
+    this.state = {
+      userinfo: null,
+      repos: [],
+      starred: [],
+      isFetching: false
+    }
+  }
+
+  getGitHubUrl(username, type) {
+    const iType = type ? `/${type}` : '';
+    const iUser = username ? `/${username}` : '';
+    return `https://api.github.com/users${iUser}${iType}`
+  }
+
+  getRepos(type){
+    return () => {
+      const username = this.state.userinfo.login;
+      ajax().get(this.getGitHubUrl(username, type)).
+      then((result) => {
+        this.setState({
+          [type]: result.map((repo) => ({
+              name: repo.name,
+              link: repo.html_url            
+          }))
+        })
+      });
+    }
+  }
+  
+  handleSearch(e){
+    const keyCode = e.keyCode;
+    const value = e.target.value;
+    
+    if (keyCode === 13)
+    {
+      this.setState({
+        isFetching: true
+      })
+      ajax().get(this.getGitHubUrl(value)).
+      then((result) => {
+        this.setState({
+          userinfo: {
+            username: result.name,
+            photo: result.avatar_url,
+            login: result.login,
+            repos: result.public_repos,
+            followers: result.followers,
+            following: result.following
+          },
+          repos: [],
+          starred: []
+        })        
+      }).always(() => {this.setState({isFetching: false})});
+    }
+  }
+
+
   render(){ 
-    return(
-      <div className='app'>
-
-        <Search/>
-        
-        <UserInfo/>
-        
-        <Actions/>
-
-        <Repos className = 'repos' title = 'Repositórios: ' 
-          repos={[{
-            name: 'Nome do repositório',
-            link: '#'
-          
-          }]}
-        />
-        <Repos className = 'starred' title = 'Favoritos: ' 
-          repos={[{
-            name: 'Nome do repositório',
-            link: '#'
-          
-          }]}
-        />
-
-      </div>
-    )
+    return <AppContent 
+      userinfo={this.state.userinfo}
+      repos = {this.state.repos}
+      starred = {this.state.starred}
+      handleSearch= {(e) => this.handleSearch(e)}
+      getRepos = {this.getRepos('repos')}    
+      getFav = {this.getRepos('starred')}
+      isFetching = {this.state.isFetching}    
+    />
   }
 }
 
